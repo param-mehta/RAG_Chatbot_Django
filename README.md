@@ -2,24 +2,13 @@
 
 ## Overview
 
-An end-to-end job recommender engine that performs a similarity search between job descriptions and the uploaded resume to return the top 5 most relevant jobs
+An Chatbot application that answers questions about your PDFs. The RAG (Retrieval Augmented Generation) pipeline is built through LangChain while the backend is built using Django
 
 ## Features
 
-- Use Airflow to orchestrate data ingestion and preprocessing
-  
-    - Scrape thousands of job details daily for desired parameters such as job title and location, storing the JSON files on Google Cloud Storage.
-    - Cleanse and preprocess raw data in parallel using PySpark, generating summary statistics about collected jobs using Spark SQL.
-    - Convert job descriptions into word embeddings using Langchain.
-    - Store job data and statistics as MongoDB collections.
-
-
-- Develop a dashboard to display job statistics and recommend relevant jobs
-
-    - Parse the user's resume using Google's Cloud Vision API and convert it into embeddings using Langchain.
-    - Filter jobs from the database based on the parameters selected by the user.
-    - Conduct similarity search between the resume text and job descriptions of filtered positions.
-    - Display the details of the top k relevant jobs along with an LLM-generated summary explaining why the job description and resume constitute a suitable match.
+- Parse multiple PDFs using Google's Cloud Vision API
+- Embed and index your documents using HuggingFace's Instructor Embeddings
+- A Django website that answers user questions through Gemini pro and records user feedback for each reponse
 
  
 ## Pipeline Overview
