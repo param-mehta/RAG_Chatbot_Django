@@ -11,32 +11,18 @@ An Chatbot application that answers questions about your PDFs. The RAG (Retrieva
 - A Django website that answers user questions through Gemini pro and records user feedback for each reponse
 
  
-## Pipeline Overview
-<img width="1423" alt="Screenshot 2024-03-10 at 12 27 38 AM" src="https://github.com/param-mehta/Linkedin_job_recommender/assets/61198990/fd219f8e-5f01-4809-bd7a-b8e19c3e58de">
+## Use Case
+<img width="600" height="400" alt="Screenshot 2024-03-13 at 3 31 00 AM" src="https://github.com/param-mehta/RAG_Chatbot_Django/assets/61198990/004cb200-2aaa-49ba-a1a0-3a05450985b3">
+<br>
+<br>
 
-- The top branch of the pipeline is automated through Airflow. We scrape jobs from LinkedIn, clean data, calculate job statistics, convert descriptions to embeddings, and store processed data as MongoDB collections. Using a NoSQL database is advantageous because the data is ingested from multiple sources with different schemas and formats. Additionally, MongoDB's Atlas Vector Search allows storing vector embeddings alongside source data and provides efficient vector operations. While traditional SQL databases are fast on smaller datasets, vector databases scale better.
-
-- The bottom branch of the pipeline represents the frontend. If you prefer not to have a live dashboard and want recommendations generated as part of the batch job, a minor tweak in the DAG pipeline suffices. Store your resume and add an additional task at the end of the DAG pipeline, which performs the similarity search and uses an EmailOperator to send you job URLs of top recommendations.
-
-## DAG Workflow
-<img width="1406" alt="image" src="https://github.com/param-mehta/Linkedin_job_recommender/assets/61198990/d5212a83-65b9-4610-a957-ca24660c4d22">
-
-
-This is the top branch of the pipeline represented as a DAG diagram. It consists of four major tasks that run sequentially.
-
-The following illustrates a cycle of successful DAG runs on Cloud Composer.
-
-
-<img width="1468" alt="successful_airflow_run" src="https://github.com/param-mehta/Linkedin_job_recommender/assets/61198990/97d1085b-e5dc-476c-bc5d-978b40506bbf">
-
-
-
-The `convert_to_embeddings` task takes longer because I am pushing individual jobs to the MongoDB collection rather than using a single push operation for all jobs, which would exceed the default memory limit of small Composer environments.
-
+- I have built an app that can work as a customer support chatbot for an energy service company. The user is prompted whether their query is about the company's rules and policies or is it about the bill statement. The data for the former comprises of several pdfs that document the policies, conditions and disclaimers pertaining to the company's utility services. For the later, it is a 5 page billing statement that comprises of various tables and figures explaining the breakdown of charges incurred for a particular month.
+- I have built separate pipelines for the above two tasks (different vectorstore, prompts, chunksize, etc) to ensure faster and better performance.
+- To adapt this system for your use case, all you need to do is replace the pdfs and the prompt. You can change other hyperparameters later to finetune your system and improve baseline performance.
 
 
 ## Demo
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/xM8NA1D05hk/0.jpg)](https://www.youtube.com/watch?v=xM8NA1D05hk)
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/RHn41-COJcY/0.jpg)](https://www.youtube.com/watch?v=RHn41-COJcY)
 
 
 ## Installation and Usage
