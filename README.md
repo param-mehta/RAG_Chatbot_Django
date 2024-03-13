@@ -25,51 +25,14 @@ An Chatbot application that answers questions about your PDFs. The RAG (Retrieva
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/RHn41-COJcY/0.jpg)](https://www.youtube.com/watch?v=RHn41-COJcY)
 
 
-## Installation and Usage
-
-#### Google Cloud Composer
-
-To set up on Composer, create a Composer 2 Environment with a Medium size.
-
-1. Configure the following environment variables in the Composer environment:
-   ```bash
-    #!/bin/bash
-    export GS_BUCKET_NAME=""
-    export GCP_PROJECT_NAME=""
-    export MONGO_USERNAME=""
-    export MONGO_PASSWORD=""
-    export DB_NAME=""
-    export ATLAS_CONNECTION_STRING="mongodb+srv://<user>:<password>@<database_name>.vnw63oa.mongodb.net/?retryWrites=true&w=majority"
-    export VECTOR_INDEX_NAME=""
-    export COLLECTION_NAME=""
-    export JOBS_COLLECTION_NAME=""
-    export COLLECTION_NAME_STATS=""
-    export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
-    ```
-2. Install the following dependencies under the PyPI Packages tab in your Composer environment:
-    ```bash
-    google-cloud-aiplatform
-    apache-airflow-providers-apache-spark
-    pymongo[srv]==3.11
-    langchain==0.1.5
-    langchain-community==0.0.18
-    langchain-google-vertexai==0.0.2
-    InstructorEmbedding==1.0.1
-    google-cloud-storage
-    pyspark==3.4.1
-    certifi
-    torch==2.0.1
-    sentence_transformers==2.2.22
-    ```
-
-#### Local
+## Installation
 
 1. Set up an environment:
     ```bash
-    conda create --name job_recommender python=3.11.7
+    conda create --name rag_chatbot python=3.11.7
     ```
     ```bash
-    conda activate job_recommender
+    conda activate rag_chatbot
     ```
     ```bash
     bash env.sh
@@ -78,55 +41,48 @@ To set up on Composer, create a Composer 2 Environment with a Medium size.
 
 2. Clone the repository and install dependencies:
     ```bash
-    git clone https://github.com/yourusername/Linkedin_job_recommender.git
+    git clone https://github.com/yourusername/RAG_Chatbot_Django.git
     ```
     ```bash
-    cd Linkedin_job_recommender
+    cd RAG_Chatbot_Django
     ```
     ```bash
     pip install -r requirements.txt
     ```
 
-3. Initialize metastore:
+3. Apply changes in database:
     ```bash
-    airflow db init
+    cd src/app
+    python manage.py migrate
     ```
+## Usage
 
-4. Create a DAG folder:
-    ```bash
-    mkdir ~/airflow/dags
-    ```
-    This directory should contain all your DAG files.
+1. Place your pdfs in a folder in your google cloud bucket. In `parse_pdfs.py`, add the path of all these pdfs in a list. Make separate lists if you want to segregate your problem into different tasks like I mentioned above. Specify the google storage path where you want your pdfs to be stored.
 
-5. Start the scheduler to trigger the scheduled DAG runs:
-    ```bash
-    airflow scheduler
-    ```
+2. Run `parse_pdfs.py` to convert pdfs into text files.
 
-6. Run the webserver to monitor your DAG runs:
-    ```bash
-    airflow webserver
-    ```
+3. Run `embed_docs.py` to convert text into embeddings. 
 
-7. Launch the dashboard, upload your resume, and explore recommended jobs:
+4. To start the application:
     ```bash
-    streamlit run app.py
+    python manage.py runserver
     ```
+5. You can see a db.sqlite3 file inside the app folder. You can access conversations and their feedback through this sqlite database.
 
 ## Guide
 
-`linkedin_dag.py`:
-
-This is the main DAG file defining operators and dependencies, running daily.
-
-`get_jobs_from_api.py`:
+`parse_pdfs.py`:
 
 - Fetches data from LinkedIn using Jsearch API parameters.
 - Stores JSON files in a GCS bucket.
 
-`gcs_to_mongo.py`:
+`embed_docs.py`:
 
-- Reads JSON files from the GCS bucket and converts them into a Spark RDD.
+This is the main DAG file defining operators and dependencies, running daily.
+
+`data`
+
+- The chroma db files for both the tasks are stored inside this directory. 
 - Filters and modifies specific fields based on the desired format.
 - Applies text cleaning functions to the job description field.
 - Stores job details as a collection on a MongoDB Atlas cluster.
