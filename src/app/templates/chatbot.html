@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<style>
+    body, html {
+      height: 100%;
+    }
+
+    .messages-box {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .messages-list {
+      padding-left: 0;
+    }
+
+    .message {
+      margin-bottom: 15px;
+      list-style: none;
+    }
+
+    .message-text {
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    .sent {
+      background-color: #dcf8c6;
+      align-self: flex-end;
+    }
+
+    .received {
+      background-color: #f1f0f0;
+      align-self: flex-start;
+    }
+
+    .message-form {
+      display: flex;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 10px;
+      background-color: #f8f9fa;
+      margin-left: 100px;
+      margin-bottom: 15px;
+    }
+
+    .message-input {
+      flex: 1;
+      border-radius: 0;
+      border-right: none;
+    }
+
+    .btn-send {
+      border-radius: 0;
+    }
+
+    .chat-container {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      margin-left: 0px;
+    }
+
+    .navbar {
+        background-color: #343a40;
+        padding: 15px;
+        height: 100%;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 100px;
+        display: flex;
+        flex-direction: column;
+        align-items: center; 
+        justify-content: flex-start;
+    }
+
+    .navbar a {
+        color: white;
+        text-decoration: none;
+        padding: 10px;
+        margin-bottom: 10px;
+        text-align: center;
+        border-radius: 5px;
+    }
+
+    .navbar a:hover {
+        background-color: #555;
+    }
+
+    .main-content {
+        margin-left: 99px; /* Adjust the margin to accommodate the navbar width */
+    }
+
+  </style>
+{% endblock %}
+
+
+{% block content %}
+<div class="chat-container">
+  <div class="navbar">
+    <div style="color: #1990ff; font-size: x-medium;">Electricity bill</div>
+    <br>
+    <br>
+    {% if user.is_authenticated %}
+        <a style="color: white;" href="logout">Logout</a>
+        <a style="color: white;" href="issue_type">New Chat</a>
+    {% else %}
+        <a style="color: yellow" href="login">Login</a>
+        <a style="color: yellow;" href="register">Register</a>
+    {% endif %}
+  </div>
+
+  <div class="main-content">
+
+    <div class="card-body messages-box">
+      
+      <ul class="list-unstyled messages-list">
+
+        <li class="message received">
+          <div class="message-text">
+            <div class="message-sender">
+              <b>AI Chatbot</b>
+            </div>
+            <div class="message-content">
+              Great, what is your query?
+            </div>
+          </div>
+        </li>
+
+        {% for chat in chats %}
+          {% if chat.user == request.user %}
+
+            <li class="message sent">
+          <div class="message-text">
+            <div class="message-sender">
+              <b>You</b>
+            </div>
+            <div class="message-content">
+              {{chat.message}}
+            </div>
+          </div>
+        </li>
+
+        <li class="message received">
+          <div class="message-text">
+            <div class="message-sender">
+              <b>AI Chatbot</b>
+            </div>
+            <div class="message-content">
+              {{chat.response}}
+            </div>
+          </div>
+        </li>
+
+          {% endif %}
+        {% endfor %}
+        
+      </ul>
+      
+    </div>
+    <br><br>
+    <br><br>
+    <br><br>
+  </div>
+  <form class="message-form">
+    {%csrf_token%}
+    <div class="input-group">
+      <input type="text" class="form-control message-input" placeholder="Type your message...">
+      <div class="input-group-append">
+        <button type="submit" class="btn btn-primary btn-send">Send</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+
+<script>
+  const messagesList = document.querySelector('.messages-list');
+  const messageForm = document.querySelector('.message-form');
+  const messageInput = document.querySelector('.message-input');
+ 
+  messageForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+ 
+     const message = messageInput.value.trim();
+     if (message.length === 0) {
+       return;
+     }
+ 
+     const messageItem = document.createElement('li');
+     messageItem.classList.add('message', 'sent');
+     messageItem.innerHTML = `
+         <div class="message-text">
+             <div class="message-sender">
+                 <b>You</b>
+             </div>
+             <div class="message-content">
+                 ${message}
+             </div>
+         </div>`;
+     messagesList.appendChild(messageItem);
+ 
+     messageInput.value = '';
+ 
+     fetch('', {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+       body: new URLSearchParams({
+         'csrfmiddlewaretoken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+         'message': message
+       })
+     })
+       .then(response => response.json())
+       .then(data => {
+         const response = data.response;
+         const feedback = data.feedback;
+         const messageItem = document.createElement('li');
+         messageItem.classList.add('message', 'received');
+         messageItem.innerHTML = `
+         <div class="message-text">
+             <div class="message-sender">
+               <b>AI Chatbot</b>
+             </div>
+             <div class="message-content">
+                 ${response}
+                 <div>
+                  <br>
+                  <button type="button" class="btn btn-success btn-sm" onclick="sendFeedback(1)">Upvote</button>
+                  <button type="button" class="btn btn-danger btn-sm" onclick="sendFeedback(0)">Downvote</button>
+                 </div>
+             </div>
+         </div>
+           `;
+         messagesList.appendChild(messageItem);
+       });
+  });
+ 
+  function sendFeedback(feedbackValue) {
+     fetch('feedback', {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+       body: new URLSearchParams({
+         'csrfmiddlewaretoken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+         'vote': feedbackValue
+       })
+     });
+     location.reload(true);
+  }
+ 
+ </script>
+
+{% endblock %}
+
