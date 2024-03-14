@@ -41,7 +41,7 @@ An Chatbot application that answers questions about your PDFs. The RAG (Retrieva
 
 2. Clone the repository and install dependencies:
     ```bash
-    git clone https://github.com/yourusername/RAG_Chatbot_Django.git
+    git clone https://github.com/param-mehta/RAG_Chatbot_Django.git
     ```
     ```bash
     cd RAG_Chatbot_Django
@@ -57,17 +57,18 @@ An Chatbot application that answers questions about your PDFs. The RAG (Retrieva
     ```
 ## Usage
 
-1. Place your pdfs in a folder in your google cloud bucket. In `parse_pdfs.py`, add the path of all these pdfs in a list. Make separate lists if you want to segregate your problem into different tasks like I mentioned above. Specify the google storage path where you want your pdfs to be stored.
+1.Generate a service account json file in your google cloud console. 
+2. Place your pdfs in a folder in your google cloud bucket. In `parse_pdfs.py`, add the path of all these pdfs in a list. Make separate lists if you want to segregate your problem into different tasks like I mentioned above. Specify the google storage path where you want your pdfs to be stored.
 
-2. Run `parse_pdfs.py` to convert pdfs into text files.
+3. Run `parse_pdfs.py` to convert pdfs into text files.
 
-3. Run `embed_docs.py` to convert text into embeddings. 
+4. Run `embed_docs.py` to convert text into embeddings. 
 
-4. To start the application:
+5. To start the application:
     ```bash
     python manage.py runserver
     ```
-5. You can see a db.sqlite3 file inside the app folder. You can access conversations and their feedback through this sqlite database.
+6. You can see a db.sqlite3 file inside the app folder. You can access conversations and their feedback through this sqlite database.
 
 ## Guide
 
@@ -82,34 +83,18 @@ This is the main DAG file defining operators and dependencies, running daily.
 
 `data`
 
-- The chroma db files for both the tasks are stored inside this directory. 
-- Filters and modifies specific fields based on the desired format.
-- Applies text cleaning functions to the job description field.
-- Stores job details as a collection on a MongoDB Atlas cluster.
+- The chroma db files for both the tasks are stored inside this directory. Note that this stores the embeddings for each document and is different from sqlite3 database I mentioned above.
 
-`convert_to_embeddings.py`:
+`app/templates`:
 
-Converts the description field into embeddings using Langchain, utilizing Instructor Embeddings from Hugging Face.
+Contains the html files for each web page
 
-`calculate_summary_statistics.py`:
+`app/chatbot`:
 
-Converts the description field into embeddings using Langchain, utilizing Instructor Embeddings from Hugging Face.
+  - `models.py` - This is where you create new models by defining their schema. Any table that your app is referencing should be initialised here. It's a django equivalent of a create table queries in SQL
+  - `urls.py` - It maps URL patterns to views, which are Python functions or class-based views that handle HTTP requests.
+  - `views.py` - This file defines the views, which are Python functions or classes that handle HTTP requests and return HTTP responses. Views encapsulate the core logic of your application
+  - `chatbot_utils.py` - This file contains helper functions to setup the RAG pipeline which includes creating an instance of a Chroma db vector store and conversation retrieval chain. You also define your LLM prompts in this file.
 
-`app.py`:
-
-This Streamlit dashboard:
-- Displays job statistics about collected jobs.
-- Prompts the user to select search parameters and upload a resume.
-- Parses resume text, embeds it, and performs similarity search to recommend top job positions.
-- For each job, displays details like salary, location, URL, and similarity score.
-- Also presents a Gemini-induced summary explaining why the resume is a good match for the selected job.
-
-`helper.py`:
-
-Contains helper functions used by `app.py`.
-
-`user_definition.py`: 
-
-Configuration file for importing environment variables.
 
 ## Time to find a job!
