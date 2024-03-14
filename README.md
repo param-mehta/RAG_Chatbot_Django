@@ -22,6 +22,9 @@ An Chatbot application that answers questions about your PDFs. The RAG (Retrieva
 
 
 ## Demo
+
+Click below to see a short demo of the app:
+
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/RHn41-COJcY/0.jpg)](https://www.youtube.com/watch?v=RHn41-COJcY)
 
 
@@ -38,6 +41,7 @@ An Chatbot application that answers questions about your PDFs. The RAG (Retrieva
     bash env.sh
     source env.sh
     ```
+    Note: In the env.sh, the variable GOOGLE_API_KEY_STRING needs the contents of the service account json file as a string and not it's path.
 
 2. Clone the repository and install dependencies:
     ```bash
@@ -57,8 +61,12 @@ An Chatbot application that answers questions about your PDFs. The RAG (Retrieva
     ```
 ## Usage
 
-1.Generate a service account json file in your google cloud console. 
-2. Place your pdfs in a folder in your google cloud bucket. In `parse_pdfs.py`, add the path of all these pdfs in a list. Make separate lists if you want to segregate your problem into different tasks like I mentioned above. Specify the google storage path where you want your pdfs to be stored.
+1. Generate a service account json file in your Google Cloud Console. Enable the following API:
+   - Google Vertex AI API
+   - Google Cloud Vision API
+   - Google Cloud Storage API
+
+2. Place your PDFs in a folder in your google cloud bucket. In `parse_pdfs.py`, add the path of all these pdfs in a list. Make separate lists if you want to segregate your problem into different tasks like I mentioned above. Specify the google storage path where you want your pdfs to be stored.
 
 3. Run `parse_pdfs.py` to convert pdfs into text files.
 
@@ -96,5 +104,11 @@ Contains the html files for each web page
   - `views.py` - This file defines the views, which are Python functions or classes that handle HTTP requests and return HTTP responses. Views encapsulate the core logic of your application
   - `chatbot_utils.py` - This file contains helper functions to setup the RAG pipeline which includes creating an instance of a Chroma db vector store and conversation retrieval chain. You also define your LLM prompts in this file.
 
+I am storing conversations in the following structure:
 
-## Time to find a job!
+<img width="461" alt="image" src="https://github.com/param-mehta/RAG_Chatbot_Django/assets/61198990/3c1842f6-2fc9-422c-9b98-039f3e3b3eaa">
+
+<br>
+<br>
+
+These can be queried through SQL and be used for evaluation and finetuning. You can make other changes to this schema based on your requirement. Make sure to migrate those changes before running the app again.
