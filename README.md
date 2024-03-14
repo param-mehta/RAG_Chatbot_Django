@@ -69,6 +69,8 @@ Click below to see a short demo of the app:
 
 4. Run `embed_docs.py` to convert text into embeddings. 
 
+   If your data is dynamic, the above two steps can be performed as an automated batch job through any orchestration tool like Airflow.
+
 5. To start the application:
     ```bash
     python manage.py runserver
@@ -79,16 +81,17 @@ Click below to see a short demo of the app:
 
 `parse_pdfs.py`:
 
-- Fetches data from LinkedIn using Jsearch API parameters.
-- Stores JSON files in a GCS bucket.
+- Parses all the PDFs using Google Cloud Vision API.
+- Stores the parsed data as text files back to Google Cloud Storage .
 
 `embed_docs.py`:
 
-This is the main DAG file defining operators and dependencies, running daily.
+- Chunks all documents and converts them into embeddings
+- Creates a vectorstore that stores the embeddings along with document metadata
 
 `data`
 
-- The chroma db files for both the tasks are stored inside this directory. Note that this stores the embeddings for each document and is different from the SQLite3 database I mentioned above.
+The chroma db files for both the tasks are stored inside this directory. Note that this stores the embeddings for each document and is different from the SQLite3 database I mentioned above.
 
 `app/templates`:
 
